@@ -1,26 +1,152 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+@theme {
+  --color-duo-green: #58CC02;
+  --color-duo-green-dark: #46A302;
+  --color-duo-blue: #1CB0F6;
+  --color-duo-blue-dark: #1899D6;
+  --color-duo-yellow: #FFC800;
+  --color-duo-yellow-dark: #E5B300;
+  --color-duo-orange: #FF4B4B;
+  --color-duo-orange-dark: #E54343;
+  --color-duo-white: #FFFFFF;
+  --color-duo-gray: #AFAFAF;
+  --color-duo-dark: #4B4B4B;
+  --radius-duo: 1.5rem;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@layer base {
+  body {
+    background-color: white;
+    color: var(--color-duo-dark);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    min-height: 100vh;
+    font-family: ui-sans-serif, system-ui, sans-serif;
+    background-image:
+      radial-gradient(at 0% 0%, rgba(88, 204, 2, 0.05) 0px, transparent 50%),
+      radial-gradient(at 100% 100%, rgba(28, 176, 246, 0.05) 0px, transparent 50%);
   }
-}
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  /* Duolingo-Style Bubbly UI */
+  .duo-button {
+    position: relative;
+    padding: 0.75rem 2rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    transition-property: all;
+    transition-duration: 100ms;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    border-radius: var(--radius-duo);
+    border-bottom-width: 4px;
+    border-style: solid;
+    user-select: none;
+  }
+
+  .duo-button:active {
+    transform: translateY(2px);
+    border-bottom-width: 0px;
+    margin-bottom: 2px;
+  }
+
+  .duo-button-green {
+    background-color: var(--color-duo-green);
+    color: white;
+    border-color: var(--color-duo-green-dark);
+  }
+
+  .duo-button-green:hover {
+    filter: brightness(1.1);
+  }
+
+  .duo-button-blue {
+    background-color: var(--color-duo-blue);
+    color: white;
+    border-color: var(--color-duo-blue-dark);
+  }
+
+  .duo-button-blue:hover {
+    filter: brightness(1.1);
+  }
+
+  .duo-button-orange {
+    background-color: var(--color-duo-orange);
+    color: white;
+    border-color: var(--color-duo-orange-dark);
+  }
+
+  .duo-button-orange:hover {
+    filter: brightness(1.1);
+  }
+
+  .duo-button-white {
+    background-color: white;
+    color: var(--color-duo-blue);
+    border-color: rgba(175, 175, 175, 0.3);
+    border-bottom-width: 2px;
+  }
+
+  .duo-button-white:hover {
+    background-color: #f9fafb;
+  }
+
+  .duo-card {
+    padding: 2rem;
+    background-color: white;
+    border: 2px solid rgba(175, 175, 175, 0.2);
+    transition-property: all;
+    transition-duration: 300ms;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    border-radius: var(--radius-duo);
+    box-shadow: 0 4px 0 0 rgba(0, 0, 0, 0.05);
+  }
+
+  .duo-card:hover {
+    border-color: rgba(28, 176, 246, 0.5);
+    background-color: #fafafa;
+  }
+
+  .duo-progress-container {
+    height: 1rem;
+    width: 100%;
+    background-color: #e5e7eb;
+    /* bg-gray-200 */
+    border-radius: 9999px;
+    /* rounded-full */
+    overflow: hidden;
+    position: relative;
+  }
+
+  .duo-progress-bar {
+    height: 100%;
+    background-color: var(--color-duo-green);
+    /* bg-duo-green */
+    transition-property: all;
+    transition-duration: 500ms;
+    border-radius: 9999px;
+    /* rounded-full */
+    background-image: linear-gradient(rgba(255, 255, 255, 0.2) 0%, transparent 100%);
+  }
+
+  /* Bouncy Animations */
+  .duo-bounce {
+    animation: bounce 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) infinite alternate;
+  }
+
+  @keyframes bounce {
+    from {
+      transform: translateY(0);
+    }
+
+    to {
+      transform: translateY(-10px);
+    }
+  }
+
+  /* Scanline/Grid is too professional, let's use soft blobs for background instead */
+  .duo-blob {
+    @apply absolute blur-3xl opacity-20 pointer-events-none;
+    z-index: -1;
+  }
 }

@@ -37,12 +37,13 @@ export default function LeaderboardPage() {
     });
 
     return (
-        <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white text-duo-dark pt-24 pb-32 overflow-hidden relative">
-            {/* Background blobs */}
-            <div className="absolute -top-40 -left-40 w-[500px] h-[500px] bg-duo-blue/5 rounded-full blur-[120px] animate-pulse" />
-            <div className="absolute top-1/2 -right-40 w-[400px] h-[400px] bg-duo-green/5 rounded-full blur-[100px]" />
+        <div className="min-h-screen bg-slate-50 relative overflow-hidden font-display text-duo-dark pt-24 pb-32">
+            {/* Background elements */}
+            <div className="absolute inset-0 mesh-bg opacity-[0.03] pointer-events-none" />
+            <div className="absolute -top-40 -left-40 w-[600px] h-[600px] bg-duo-blue/5 rounded-full blur-[120px]" />
+            <div className="absolute -bottom-40 -right-40 w-[500px] h-[500px] bg-duo-green/5 rounded-full blur-[100px]" />
 
-            <div className="container mx-auto px-4 max-w-5xl relative z-10">
+            <div className="container mx-auto px-4 max-w-6xl relative z-10">
 
                 {/* Header */}
                 <motion.div initial={{ y: -30, opacity: 0 }} animate={{ y: 0, opacity: 1 }} className="text-center mb-16">
@@ -137,12 +138,23 @@ export default function LeaderboardPage() {
 
                                 {/* Info */}
                                 <div className="flex-1">
-                                    <h4 className="text-xl font-black uppercase italic tracking-tight flex items-center gap-3">
-                                        {leader.name}
-                                        {leader.league === "Diamond" && <Crown size={18} className={leader.name === "Saru" ? "text-white" : "text-blue-400 animate-pulse"} />}
-                                    </h4>
-                                    <p className={`text-sm font-bold uppercase tracking-widest ${leader.name === "Saru" ? "text-white/70" : "text-duo-gray"}`}>
+                                    <div className="flex items-center gap-2 mb-1">
+                                        <h4 className="text-xl font-black uppercase italic tracking-tight flex items-center gap-3">
+                                            {leader.name}
+                                            {leader.league === "Diamond" && <Crown size={18} className={leader.name === "Saru" ? "text-white" : "text-blue-400 animate-pulse"} />}
+                                        </h4>
+                                        {leader.rank <= 3 && (
+                                            <span className={`text-[10px] font-black px-2 py-0.5 rounded-full uppercase tracking-widest ${leader.name === "Saru" ? 'bg-white/20 text-white' : 'bg-duo-blue/10 text-duo-blue'}`}>
+                                                Top {leader.rank === 1 ? '1%' : leader.rank === 2 ? '3%' : '5%'}
+                                            </span>
+                                        )}
+                                    </div>
+                                    <p className={`text-sm font-bold uppercase tracking-widest flex items-center gap-2 ${leader.name === "Saru" ? "text-white/70" : "text-duo-gray"}`}>
                                         {leader.role} · {leader.league}
+                                        <span className="opacity-40">|</span>
+                                        <span className="flex items-center gap-1">
+                                            <Zap size={12} fill="currentColor" /> {Math.floor(95 - leader.rank * 2)}% Consistency
+                                        </span>
                                     </p>
                                 </div>
 
@@ -166,7 +178,7 @@ export default function LeaderboardPage() {
                 >
                     <div className="flex flex-col lg:flex-row items-center gap-10">
                         <div className="relative flex-shrink-0">
-                            <JasaMascot pose="cheering" className="w-40 h-40" />
+                            <JasaMascot pose="cheering" showCelebration={false} className="w-40 h-40" />
                         </div>
                         <div className="flex-1 text-center lg:text-left">
                             <div className="flex items-center justify-center lg:justify-start gap-3 mb-3">

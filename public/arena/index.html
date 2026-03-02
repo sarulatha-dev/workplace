@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Workplace Etiquette | Hybrid Team Games</title>
+    <link rel="stylesheet" href="styles.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container" id="app">
+        <header>
+            <h1 class="float">Workplace Pro</h1>
+            <p class="subtitle">Master Digital Etiquette & Hybrid Collaboration</p>
+        </header>
+
+        <main id="game-area">
+            <!-- Game dynamic content will be injected here -->
+            <div class="game-grid" id="card-grid">
+                <!-- Cards injected via JS -->
+            </div>
+        </main>
+
+        <section class="teams-panel" id="teams-panel">
+            <div class="team-card active" id="team-1">
+                <div class="team-name">Team A</div>
+                <div class="team-score">0</div>
+            </div>
+            <div class="team-card" id="team-2">
+                <div class="team-name">Team B</div>
+                <div class="team-score">0</div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Modal for Quizzes / Power-ups -->
+    <div class="modal" id="modal">
+        <div class="modal-content">
+            <div id="modal-body">
+                <!-- Dynamic Modal Content -->
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,1025 @@
+import { useState, useEffect, useRef } from "react";
+
+const scenarios = [
+{ id: 1, text: "Your coworker microwaves fish in the communal kitchen. What do you do?", category: "Kitchen Crimes",
+options: ["Say nothing, suffer in silence", "Leave a passive-aggressive note", "Politely talk to them directly",
+"Escalate to HR immediately"], correct: 2, explanation: "Direct, calm communication is almost always the right move.
+Notes can come across as passive-aggressive and escalating to HR skips necessary steps." },
+{ id: 2, text: "You accidentally reply-all to a company-wide email meant for just one person.", category: "Email Fails",
+options: ["Pretend it didn't happen", "Send another reply-all to apologize", "Send a direct apology to the relevant
+person only", "Resign immediately"], correct: 2, explanation: "A quiet, direct apology is best. Another reply-all
+compounds the problem. Most people will forget by tomorrow." },
+{ id: 3, text: "A colleague takes credit for your idea in a meeting.", category: "Meeting Chaos", options: ["Explode
+publicly", "Say 'Yes, and I'd add...' to reclaim it naturally", "Complain after to everyone", "Let it go forever"],
+correct: 1, explanation: "Saying 'Yes, and...' reclaims ownership professionally without creating drama. Escalating
+publicly can backfire on you." },
+{ id: 4, text: "Your team is on a video call and someone's mic is making horrible feedback noise.", category: "Remote
+Drama", options: ["Mute yourself and suffer", "Type in chat asking them to mute", "Yell 'MUTE YOUR MIC'", "Leave the
+call"], correct: 1, explanation: "A quick chat message is non-disruptive and gives the person a chance to fix it without
+embarrassment." },
+{ id: 5, text: "You see a coworker crying at their desk.", category: "Office Feels", options: ["Ignore them completely",
+"Loudly ask what's wrong in front of everyone", "Quietly check in privately", "Send a company-wide wellness email"],
+correct: 2, explanation: "A private, low-key check-in respects their dignity and gives them control over whether to
+share." },
+{ id: 6, text: "Would you rather: Ghost a meeting or show up 15 min late every time?", category: "Would You Rather",
+options: ["Ghost the meeting", "Always be 15 min late"], correct: 1, explanation: "Late but present shows effort.
+Ghosting is a trust-breaker and can derail entire meetings waiting on you." },
+{ id: 7, text: "You overhear gossip about a colleague. What do you do?", category: "Office Drama", options: ["Join in
+enthusiastically", "Listen but don't contribute", "Walk away or redirect the conversation", "Report everyone to HR"],
+correct: 2, explanation: "Redirecting or walking away keeps you out of toxic dynamics. Listening passively still makes
+you complicit." },
+{ id: 8, text: "Your manager asks for feedback on their idea — and you think it's terrible.", category: "Feedback Zone",
+options: ["Lie and say it's great", "Brutal honesty: 'This is bad'", "Ask clarifying questions and gently raise
+concerns", "Say nothing and let it fail"], correct: 2, explanation: "Constructive pushback framed as curiosity ('Have we
+considered...?') is valued. Blind praise or silence both harm the team." },
+];
+
+const dilemmas = [
+{ a: "Eat lunch at your desk every day", b: "Have to make small talk in the kitchen every day" },
+{ a: "Your Slack is always open", b: "You only check email twice a day" },
+{ a: "Sit next to the office loud talker", b: "Sit next to the office oversharer" },
+{ a: "Never use emojis at work again", b: "Every message must start with 'Hey!'"},
+{ a: "Attend every optional meeting", b: "Never attend any optional meeting" },
+];
+
+const boardSquares = [
+{ type: "start", label: "🏢 Day 1 Intern" },
+{ type: "event", label: "Nailed standup!", points: 10 },
+{ type: "event", label: "Replied-all 😬", points: -15 },
+{ type: "event", label: "Helped a new hire", points: 20 },
+{ type: "event", label: "Forgot camera in meeting", points: -5 },
+{ type: "event", label: "Delivered project early!", points: 25 },
+{ type: "event", label: "Ate fish at desk 🐟", points: -20 },
+{ type: "event", label: "Got a shoutout in all-hands", points: 30 },
+{ type: "event", label: "Missed a deadline", points: -25 },
+{ type: "event", label: "Organized team lunch", points: 15 },
+{ type: "finish", label: "🏆 Senior Manager!" },
+];
+
+const rolePlayScenarios = [
+{ setup: "You walk into a meeting 10 minutes late. There are 8 people already there and your boss is mid-sentence.",
+role: "The Late Arriver", task: "Act out how you'd handle this entrance." },
+{ setup: "You've been asked to give feedback to a coworker whose presentation was honestly... rough.", role: "The
+Feedback Giver", task: "Deliver your feedback constructively — out loud." },
+{ setup: "Someone in your team is clearly doing all the work while another person coasts. You're in a team standup.",
+role: "The Observer", task: "Handle this situation without throwing anyone under the bus." },
+];
+
+const COLORS = {
+bg: "#0a0a0f",
+surface: "#13131f",
+card: "#1a1a2e",
+accent: "#ff6b35",
+accent2: "#7c3aed",
+accent3: "#06d6a0",
+text: "#f0f0f5",
+muted: "#6b7280",
+border: "#2a2a3e",
+};
+
+const styles = `
+@import
+url('https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=Space+Mono:wght@400;700&display=swap');
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+background: ${COLORS.bg};
+color: ${COLORS.text};
+font-family: 'Space Mono', monospace;
+min-height: 100vh;
+}
+
+.app {
+min-height: 100vh;
+background: ${COLORS.bg};
+position: relative;
+overflow-x: hidden;
+}
+
+.app::before {
+content: '';
+position: fixed;
+top: -50%;
+left: -50%;
+width: 200%;
+height: 200%;
+background: radial-gradient(ellipse at 20% 20%, rgba(124,58,237,0.07) 0%, transparent 50%),
+radial-gradient(ellipse at 80% 80%, rgba(255,107,53,0.07) 0%, transparent 50%);
+pointer-events: none;
+z-index: 0;
+}
+
+.header {
+text-align: center;
+padding: 40px 20px 20px;
+position: relative;
+z-index: 1;
+}
+
+.header h1 {
+font-family: 'Syne', sans-serif;
+font-size: clamp(2rem, 5vw, 3.5rem);
+font-weight: 800;
+background: linear-gradient(135deg, ${COLORS.accent} 0%, ${COLORS.accent2} 100%);
+-webkit-background-clip: text;
+-webkit-text-fill-color: transparent;
+background-clip: text;
+letter-spacing: -1px;
+}
+
+.header p {
+color: ${COLORS.muted};
+font-size: 0.8rem;
+margin-top: 6px;
+letter-spacing: 2px;
+text-transform: uppercase;
+}
+
+.nav {
+display: flex;
+justify-content: center;
+gap: 8px;
+padding: 20px;
+flex-wrap: wrap;
+position: relative;
+z-index: 1;
+}
+
+.nav-btn {
+padding: 10px 18px;
+border-radius: 8px;
+border: 1px solid ${COLORS.border};
+background: ${COLORS.surface};
+color: ${COLORS.muted};
+font-family: 'Space Mono', monospace;
+font-size: 0.72rem;
+cursor: pointer;
+transition: all 0.2s;
+letter-spacing: 1px;
+text-transform: uppercase;
+}
+
+.nav-btn:hover {
+border-color: ${COLORS.accent};
+color: ${COLORS.accent};
+}
+
+.nav-btn.active {
+background: ${COLORS.accent};
+border-color: ${COLORS.accent};
+color: #fff;
+}
+
+.content {
+max-width: 800px;
+margin: 0 auto;
+padding: 20px;
+position: relative;
+z-index: 1;
+}
+
+.card {
+background: ${COLORS.card};
+border: 1px solid ${COLORS.border};
+border-radius: 16px;
+padding: 32px;
+margin-bottom: 20px;
+position: relative;
+overflow: hidden;
+}
+
+.card::before {
+content: '';
+position: absolute;
+top: 0; left: 0; right: 0;
+height: 2px;
+background: linear-gradient(90deg, ${COLORS.accent}, ${COLORS.accent2});
+}
+
+.scenario-category {
+font-size: 0.65rem;
+letter-spacing: 3px;
+text-transform: uppercase;
+color: ${COLORS.accent};
+margin-bottom: 12px;
+}
+
+.scenario-text {
+font-family: 'Syne', sans-serif;
+font-size: 1.3rem;
+font-weight: 700;
+line-height: 1.4;
+margin-bottom: 28px;
+color: ${COLORS.text};
+}
+
+.options {
+display: flex;
+flex-direction: column;
+gap: 10px;
+}
+
+.option-btn {
+padding: 14px 20px;
+border-radius: 10px;
+border: 1px solid ${COLORS.border};
+background: ${COLORS.surface};
+color: ${COLORS.text};
+font-family: 'Space Mono', monospace;
+font-size: 0.78rem;
+text-align: left;
+cursor: pointer;
+transition: all 0.2s;
+line-height: 1.5;
+}
+
+.option-btn:hover:not(:disabled) {
+border-color: ${COLORS.accent2};
+background: rgba(124,58,237,0.1);
+transform: translateX(4px);
+}
+
+.option-btn.correct {
+border-color: ${COLORS.accent3};
+background: rgba(6,214,160,0.1);
+color: ${COLORS.accent3};
+}
+
+.option-btn.wrong {
+border-color: #ef4444;
+background: rgba(239,68,68,0.1);
+color: #ef4444;
+}
+
+.option-btn.selected {
+border-color: ${COLORS.accent2};
+background: rgba(124,58,237,0.15);
+}
+
+.explanation {
+margin-top: 20px;
+padding: 16px 20px;
+background: rgba(6,214,160,0.08);
+border: 1px solid rgba(6,214,160,0.2);
+border-radius: 10px;
+font-size: 0.8rem;
+color: ${COLORS.accent3};
+line-height: 1.6;
+}
+
+.score-display {
+display: flex;
+align-items: center;
+justify-content: space-between;
+padding: 16px 24px;
+background: ${COLORS.surface};
+border: 1px solid ${COLORS.border};
+border-radius: 12px;
+margin-bottom: 20px;
+}
+
+.score-label {
+font-size: 0.65rem;
+letter-spacing: 3px;
+text-transform: uppercase;
+color: ${COLORS.muted};
+}
+
+.score-value {
+font-family: 'Syne', sans-serif;
+font-size: 2rem;
+font-weight: 800;
+color: ${COLORS.accent};
+}
+
+.progress-bar {
+width: 100%;
+height: 4px;
+background: ${COLORS.border};
+border-radius: 2px;
+margin-bottom: 20px;
+overflow: hidden;
+}
+
+.progress-fill {
+height: 100%;
+background: linear-gradient(90deg, ${COLORS.accent}, ${COLORS.accent2});
+border-radius: 2px;
+transition: width 0.4s ease;
+}
+
+.btn {
+padding: 12px 28px;
+border-radius: 10px;
+border: none;
+font-family: 'Space Mono', monospace;
+font-size: 0.78rem;
+letter-spacing: 1px;
+text-transform: uppercase;
+cursor: pointer;
+transition: all 0.2s;
+}
+
+.btn-primary {
+background: ${COLORS.accent};
+color: #fff;
+}
+
+.btn-primary:hover {
+background: #ff8255;
+transform: translateY(-1px);
+}
+
+.btn-secondary {
+background: ${COLORS.surface};
+color: ${COLORS.text};
+border: 1px solid ${COLORS.border};
+}
+
+.btn-secondary:hover {
+border-color: ${COLORS.accent2};
+color: ${COLORS.accent2};
+}
+
+.dilemma-container {
+display: grid;
+grid-template-columns: 1fr auto 1fr;
+gap: 16px;
+align-items: center;
+margin: 20px 0;
+}
+
+.dilemma-option {
+padding: 28px 20px;
+border-radius: 14px;
+border: 2px solid ${COLORS.border};
+background: ${COLORS.surface};
+text-align: center;
+cursor: pointer;
+transition: all 0.25s;
+font-family: 'Syne', sans-serif;
+font-size: 1rem;
+font-weight: 700;
+line-height: 1.4;
+color: ${COLORS.text};
+}
+
+.dilemma-option:hover {
+border-color: ${COLORS.accent};
+background: rgba(255,107,53,0.08);
+transform: scale(1.02);
+}
+
+.dilemma-option.chosen-a {
+border-color: ${COLORS.accent};
+background: rgba(255,107,53,0.15);
+color: ${COLORS.accent};
+}
+
+.dilemma-option.chosen-b {
+border-color: ${COLORS.accent2};
+background: rgba(124,58,237,0.15);
+color: ${COLORS.accent2};
+}
+
+.vs-badge {
+font-family: 'Syne', sans-serif;
+font-size: 1.2rem;
+font-weight: 800;
+color: ${COLORS.muted};
+}
+
+.board {
+display: grid;
+grid-template-columns: repeat(4, 1fr);
+gap: 8px;
+margin: 20px 0;
+}
+
+.board-square {
+padding: 12px 8px;
+border-radius: 10px;
+border: 1px solid ${COLORS.border};
+background: ${COLORS.surface};
+text-align: center;
+font-size: 0.65rem;
+line-height: 1.4;
+color: ${COLORS.muted};
+position: relative;
+min-height: 70px;
+display: flex;
+flex-direction: column;
+align-items: center;
+justify-content: center;
+gap: 4px;
+}
+
+.board-square.active {
+border-color: ${COLORS.accent};
+background: rgba(255,107,53,0.1);
+color: ${COLORS.text};
+}
+
+.board-square.visited {
+border-color: ${COLORS.accent3};
+background: rgba(6,214,160,0.05);
+color: ${COLORS.accent3};
+}
+
+.board-square.positive { color: ${COLORS.accent3}; }
+.board-square.negative { color: #ef4444; }
+
+.pawn {
+font-size: 1.2rem;
+position: absolute;
+top: 4px;
+right: 4px;
+}
+
+.rp-card {
+border: 2px solid ${COLORS.accent2};
+background: rgba(124,58,237,0.05);
+}
+
+.rp-role {
+display: inline-block;
+padding: 4px 12px;
+background: ${COLORS.accent2};
+border-radius: 20px;
+font-size: 0.65rem;
+letter-spacing: 2px;
+text-transform: uppercase;
+margin-bottom: 16px;
+}
+
+.vote-bar {
+width: 100%;
+height: 8px;
+background: ${COLORS.border};
+border-radius: 4px;
+overflow: hidden;
+margin-top: 6px;
+}
+
+.vote-fill {
+height: 100%;
+background: linear-gradient(90deg, ${COLORS.accent2}, ${COLORS.accent});
+border-radius: 4px;
+transition: width 0.6s ease;
+}
+
+.result-card {
+text-align: center;
+padding: 48px 32px;
+}
+
+.result-emoji {
+font-size: 4rem;
+margin-bottom: 16px;
+}
+
+.result-title {
+font-family: 'Syne', sans-serif;
+font-size: 2rem;
+font-weight: 800;
+margin-bottom: 8px;
+}
+
+.badge {
+display: inline-block;
+padding: 6px 16px;
+border-radius: 20px;
+font-size: 0.65rem;
+letter-spacing: 2px;
+text-transform: uppercase;
+margin: 4px;
+}
+
+.badge-gold { background: rgba(251,191,36,0.2); color: #fbbf24; border: 1px solid rgba(251,191,36,0.3); }
+.badge-purple { background: rgba(124,58,237,0.2); color: #a78bfa; border: 1px solid rgba(124,58,237,0.3); }
+.badge-green { background: rgba(6,214,160,0.2); color: ${COLORS.accent3}; border: 1px solid rgba(6,214,160,0.3); }
+
+.divider {
+border: none;
+border-top: 1px solid ${COLORS.border};
+margin: 24px 0;
+}
+
+@keyframes slideIn {
+from { opacity: 0; transform: translateY(20px); }
+to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-in {
+animation: slideIn 0.35s ease forwards;
+}
+
+@keyframes pulse {
+0%, 100% { opacity: 1; }
+50% { opacity: 0.5; }
+}
+`;
+
+// ─── CARD GAME ───────────────────────────────────────────────────────────────
+function CardGame() {
+const [current, setCurrent] = useState(0);
+const [selected, setSelected] = useState(null);
+const [score, setScore] = useState(0);
+const [finished, setFinished] = useState(false);
+const [key, setKey] = useState(0);
+
+const s = scenarios[current];
+
+function choose(i) {
+if (selected !== null) return;
+setSelected(i);
+if (i === s.correct) setScore(sc => sc + 20);
+}
+
+function next() {
+if (current + 1 >= scenarios.length) {
+setFinished(true);
+} else {
+setCurrent(c => c + 1);
+setSelected(null);
+setKey(k => k + 1);
+}
+}
+
+function restart() {
+setCurrent(0); setSelected(null); setScore(0); setFinished(false); setKey(k => k + 1);
+}
+
+const pct = Math.round((score / (scenarios.length * 20)) * 100);
+
+if (finished) {
+const title = pct >= 80 ? "Office Legend 🏆" : pct >= 50 ? "Pretty Decent 👍" : "Needs Work 😬";
+const badges = [];
+if (pct === 100) badges.push({ label: "Perfect Score", cls: "badge-gold" });
+if (pct >= 60) badges.push({ label: "Good Vibes Only", cls: "badge-green" });
+badges.push({ label: `${pct}% Professionalism`, cls: "badge-purple" });
+
+return (
+<div className="card result-card animate-in">
+  <div className="result-emoji">{pct >= 80 ? "🌟" : pct >= 50 ? "💼" : "😅"}</div>
+  <div className="result-title">{title}</div>
+  <p style={{ color: COLORS.muted, fontSize: "0.85rem" , marginBottom: "20px" }}>
+    You scored {score} / {scenarios.length * 20} points
+  </p>
+  <div style={{ marginBottom: "28px" }}>
+    {badges.map((b, i) => <span key={i} className={`badge ${b.cls}`}>{b.label}</span>)}
+  </div>
+  <button className="btn btn-primary" onClick={restart}>Play Again</button>
+</div>
+);
+}
+
+return (
+<>
+  <div className="score-display">
+    <div>
+      <div className="score-label">Score</div>
+      <div className="score-value">{score}</div>
+    </div>
+    <div style={{ textAlign: "right" }}>
+      <div className="score-label">Card</div>
+      <div className="score-value" style={{ fontSize: "1.4rem" }}>{current + 1}/{scenarios.length}</div>
+    </div>
+  </div>
+  <div className="progress-bar">
+    <div className="progress-fill" style={{ width: `${((current) / scenarios.length) * 100}%` }} />
+  </div>
+  <div className="card animate-in" key={key}>
+    <div className="scenario-category">{s.category}</div>
+    <div className="scenario-text">{s.text}</div>
+    <div className="options">
+      {s.options.map((opt, i) => (
+      <button key={i} className={`option-btn ${selected !==null ? (i===s.correct ? "correct" : i===selected ? "wrong"
+        : "" ) : "" }`} onClick={()=> choose(i)}
+        disabled={selected !== null}
+        >
+        {String.fromCharCode(65 + i)}. {opt}
+      </button>
+      ))}
+    </div>
+    {selected !== null && (
+    <div className="explanation animate-in">
+      {selected === s.correct ? "✅ " : "❌ "}{s.explanation}
+    </div>
+    )}
+    {selected !== null && (
+    <div style={{ marginTop: "20px" , textAlign: "right" }}>
+      <button className="btn btn-primary" onClick={next}>
+        {current + 1 >= scenarios.length ? "See Results →" : "Next Card →"}
+      </button>
+    </div>
+    )}
+  </div>
+</>
+);
+}
+
+// ─── TRIVIA ──────────────────────────────────────────────────────────────────
+function TriviaGame() {
+const [phase, setPhase] = useState("question"); // question | debate | reveal
+const [current, setCurrent] = useState(0);
+const [votes, setVotes] = useState({});
+const [debate, setDebate] = useState("");
+const [debates, setDebates] = useState([]);
+const [score, setScore] = useState(0);
+
+const s = scenarios[current % scenarios.length];
+
+function vote(i) {
+setVotes(v => ({ ...v, [i]: (v[i] || 0) + 1 }));
+setPhase("debate");
+}
+
+function submitDebate() {
+if (debate.trim()) {
+setDebates(d => [...d, { text: debate, votes: 0, option: "You" }]);
+}
+setPhase("reveal");
+}
+
+function nextRound() {
+const total = Object.values(votes).reduce((a, b) => a + b, 0);
+const correctVotes = votes[s.correct] || 0;
+if (correctVotes / Math.max(total, 1) > 0.5) setScore(sc => sc + 15);
+setCurrent(c => c + 1);
+setVotes({});
+setDebate("");
+setDebates([]);
+setPhase("question");
+}
+
+const totalVotes = Object.values(votes).reduce((a, b) => a + b, 0) || 1;
+
+return (
+<>
+  <div className="score-display">
+    <div>
+      <div className="score-label">Party Score</div>
+      <div className="score-value">{score}</div>
+    </div>
+    <div style={{ textAlign: "right" }}>
+      <div className="score-label">Round</div>
+      <div className="score-value" style={{ fontSize: "1.4rem" }}>{(current % scenarios.length) + 1}</div>
+    </div>
+  </div>
+
+  <div className="card animate-in" key={current + phase}>
+    <div className="scenario-category">{s.category}</div>
+    <div className="scenario-text">{s.text}</div>
+
+    {phase === "question" && (
+    <div className="options">
+      {s.options.map((opt, i) => (
+      <button key={i} className="option-btn" onClick={()=> vote(i)}>
+        {String.fromCharCode(65 + i)}. {opt}
+      </button>
+      ))}
+    </div>
+    )}
+
+    {phase === "debate" && (
+    <>
+      <p style={{ color: COLORS.muted, fontSize: "0.8rem" , marginBottom: "16px" }}>
+        Vote cast! Want to defend your choice? (optional)
+      </p>
+      <textarea value={debate} onChange={e=> setDebate(e.target.value)}
+              placeholder="Make your case in 1-2 sentences..."
+              style={{
+                width: "100%", padding: "12px 16px", borderRadius: "10px",
+                border: `1px solid ${COLORS.border}`, background: COLORS.surface,
+                color: COLORS.text, fontFamily: "'Space Mono', monospace",
+                fontSize: "0.8rem", resize: "none", height: "80px", outline: "none"
+              }}
+            />
+            <div style={{ marginTop: "12px", display: "flex", gap: "10px" }}>
+              <button className="btn btn-primary" onClick={submitDebate}>Submit</button>
+              <button className="btn btn-secondary" onClick={() => setPhase("reveal")}>Skip</button>
+            </div>
+          </>
+        )}
+
+        {phase === "reveal" && (
+          <>
+            <p style={{ color: COLORS.muted, fontSize: "0.75rem", marginBottom: "16px", textTransform: "uppercase", letterSpacing: "2px" }}>Vote breakdown</p>
+            {s.options.map((opt, i) => {
+              const pct = Math.round(((votes[i] || 0) / totalVotes) * 100);
+              return (
+                <div key={i} style={{ marginBottom: "14px" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.75rem", color: i === s.correct ? COLORS.accent3 : COLORS.text, marginBottom: "4px" }}>
+                    <span>{i === s.correct ? "✅ " : ""}{opt}</span>
+                    <span>{pct}%</span>
+                  </div>
+                  <div className="vote-bar"><div className="vote-fill" style={{ width: `${pct}%`, background: i === s.correct ? COLORS.accent3 : COLORS.accent2 }} /></div>
+                </div>
+              );
+            })}
+            <div className="explanation" style={{ marginTop: "16px" }}>{s.explanation}</div>
+            {debates.length > 0 && (
+              <>
+                <hr className="divider" />
+                <p style={{ color: COLORS.muted, fontSize: "0.65rem", textTransform: "uppercase", letterSpacing: "2px", marginBottom: "10px" }}>Debate Chamber</p>
+                {debates.map((d, i) => (
+                  <div key={i} style={{ padding: "10px 14px", background: COLORS.surface, borderRadius: "8px", marginBottom: "8px", fontSize: "0.78rem", color: COLORS.text }}>
+                    "{d.text}"
+                  </div>
+                ))}
+              </>
+            )}
+            <div style={{ marginTop: "20px", textAlign: "right" }}>
+              <button className="btn btn-primary" onClick={nextRound}>Next Round →</button>
+            </div>
+          </>
+        )}
+      </div>
+    </>
+  );
+}
+
+// ─── ROLE PLAY ───────────────────────────────────────────────────────────────
+function RolePlayGame() {
+  const [current, setCurrent] = useState(0);
+  const [phase, setPhase] = useState("read"); // read | act | vote
+  const [scores, setScores] = useState([5, 5, 5]);
+  const [voted, setVoted] = useState(false);
+
+  const s = rolePlayScenarios[current % rolePlayScenarios.length];
+
+  function castVote(score) {
+    setScores(prev => {
+      const arr = [...prev];
+      arr[current % 3] = score;
+      return arr;
+    });
+    setVoted(true);
+  }
+
+  function next() {
+    setCurrent(c => c + 1);
+    setPhase("read");
+    setVoted(false);
+  }
+
+  const avgScore = Math.round(scores.reduce((a, b) => a + b, 0) / scores.length);
+
+  return (
+    <>
+      <div className="score-display">
+        <div><div className="score-label">Avg Etiquette Score</div><div className="score-value">{avgScore}/10</div></div>
+        <div style={{ textAlign: "right" }}><div className="score-label">Scene</div><div className="score-value" style={{ fontSize: "1.4rem" }}>{(current % rolePlayScenarios.length) + 1}/3</div></div>
+      </div>
+
+      <div className="card rp-card animate-in" key={current + phase}>
+        <span className="rp-role">{s.role}</span>
+        <div className="scenario-text">{s.setup}</div>
+        <p style={{ color: COLORS.accent2, fontSize: "0.8rem", marginBottom: "24px" }}>🎭 Task: {s.task}</p>
+
+        {phase === "read" && (
+          <button className="btn btn-primary" onClick={() => setPhase("act")}>I'm Ready to Act →</button>
+        )}
+
+        {phase === "act" && (
+          <div>
+            <div style={{ padding: "20px", background: COLORS.surface, borderRadius: "10px", border: `1px dashed ${COLORS.accent2}`, marginBottom: "20px", color: COLORS.muted, fontSize: "0.8rem", textAlign: "center" }}>
+              🎬 Act it out now! When done, have your audience rate you.
+            </div>
+            <button className="btn btn-primary" onClick={() => setPhase("vote")}>Done — Let's Vote!</button>
+          </div>
+        )}
+
+        {phase === "vote" && (
+          <div>
+            <p style={{ color: COLORS.muted, fontSize: "0.8rem", marginBottom: "16px" }}>Rate the performance (1-10):</p>
+            <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", marginBottom: "20px" }}>
+              {[1,2,3,4,5,6,7,8,9,10].map(n => (
+                <button
+                  key={n}
+                  onClick={() => castVote(n)}
+                  disabled={voted}
+                  style={{
+                    width: "44px", height: "44px", borderRadius: "8px", border: `1px solid ${scores[current % 3] === n && voted ? COLORS.accent : COLORS.border}`,
+                    background: scores[current % 3] === n && voted ? COLORS.accent : COLORS.surface,
+                    color: COLORS.text, cursor: voted ? "default" : "pointer", fontFamily: "'Space Mono', monospace", fontSize: "0.85rem", transition: "all 0.2s"
+                  }}
+                >{n}</button>
+              ))}
+            </div>
+            {voted && (
+              <>
+                <div className="explanation animate-in">Score recorded: {scores[current % 3]}/10</div>
+                <div style={{ marginTop: "16px", textAlign: "right" }}>
+                  <button className="btn btn-primary" onClick={next}>
+                    {current % rolePlayScenarios.length === rolePlayScenarios.length - 1 ? "See Final Score" : "Next Scene →"}
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
+        )}
+      </div>
+    </>
+  );
+}
+
+// ─── WOULD YOU RATHER ────────────────────────────────────────────────────────
+function WouldYouRather() {
+  const [current, setCurrent] = useState(0);
+  const [picked, setPicked] = useState(null);
+  const [tally, setTally] = useState(() => dilemmas.map(() => ({ a: 47, b: 53 })));
+
+  const d = dilemmas[current];
+
+  function pick(side) {
+    if (picked) return;
+    setPicked(side);
+    setTally(t => {
+      const arr = t.map(x => ({ ...x }));
+      arr[current][side] += 1;
+      return arr;
+    });
+  }
+
+  function next() {
+    if (current + 1 < dilemmas.length) {
+      setCurrent(c => c + 1);
+      setPicked(null);
+    } else {
+      setCurrent(0); setPicked(null);
+    }
+  }
+
+  const total = tally[current].a + tally[current].b;
+  const pctA = Math.round((tally[current].a / total) * 100);
+  const pctB = 100 - pctA;
+
+  return (
+    <>
+      <div style={{ textAlign: "center", marginBottom: "20px" }}>
+        <span style={{ color: COLORS.muted, fontSize: "0.7rem", letterSpacing: "3px", textTransform: "uppercase" }}>Dilemma {current + 1} of {dilemmas.length}</span>
+        <h2 style={{ fontFamily: "'Syne', sans-serif", fontSize: "1.8rem", fontWeight: 800, marginTop: "8px" }}>Would You Rather...</h2>
+      </div>
+      <div className="card animate-in" key={current}>
+        <div className="dilemma-container">
+          <div className={`dilemma-option ${picked === "a" ? "chosen-a" : ""}`} onClick={() => pick("a")}>
+            {d.a}
+            {picked && <div style={{ marginTop: "12px", fontSize: "0.7rem", color: picked === "a" ? COLORS.accent : COLORS.muted }}>{pctA}% chose this</div>}
+          </div>
+          <div className="vs-badge">VS</div>
+          <div className={`dilemma-option ${picked === "b" ? "chosen-b" : ""}`} onClick={() => pick("b")}>
+            {d.b}
+            {picked && <div style={{ marginTop: "12px", fontSize: "0.7rem", color: picked === "b" ? COLORS.accent2 : COLORS.muted }}>{pctB}% chose this</div>}
+          </div>
+        </div>
+
+        {picked && (
+          <>
+            <div style={{ marginTop: "16px" }}>
+              <div className="vote-bar" style={{ height: "12px" }}>
+                <div className="vote-fill" style={{ width: `${pctA}%`, background: `linear-gradient(90deg, ${COLORS.accent}, ${COLORS.accent2})` }} />
+              </div>
+              <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.65rem", color: COLORS.muted, marginTop: "6px" }}>
+                <span>Option A: {pctA}%</span><span>Option B: {pctB}%</span>
+              </div>
+            </div>
+            <div style={{ marginTop: "20px", textAlign: "center" }}>
+              <button className="btn btn-primary" onClick={next}>
+                {current + 1 < dilemmas.length ? "Next Dilemma →" : "Restart 🔄"}
+              </button>
+            </div>
+          </>
+        )}
+      </div>
+    </>
+  );
+}
+
+// ─── BOARD GAME ──────────────────────────────────────────────────────────────
+function BoardGame() {
+  const [pos, setPos] = useState(0);
+  const [score, setScore] = useState(0);
+  const [rolling, setRolling] = useState(false);
+  const [lastRoll, setLastRoll] = useState(null);
+  const [history, setHistory] = useState([]);
+  const [finished, setFinished] = useState(false);
+
+  function roll() {
+    if (rolling || finished) return;
+    setRolling(true);
+    const die = Math.floor(Math.random() * 3) + 1;
+    setLastRoll(die);
+    setTimeout(() => {
+      const newPos = Math.min(pos + die, boardSquares.length - 1);
+      const sq = boardSquares[newPos];
+      const pts = sq.points || 0;
+      setPos(newPos);
+      setScore(s => s + pts);
+      setHistory(h => [...h, { square: sq.label, points: pts, pos: newPos }]);
+      if (newPos === boardSquares.length - 1) setFinished(true);
+      setRolling(false);
+    }, 600);
+  }
+
+  function restart() {
+    setPos(0); setScore(0); setRolling(false); setLastRoll(null); setHistory([]); setFinished(false);
+  }
+
+  return (
+    <>
+      <div className="score-display">
+        <div><div className="score-label">Career Points</div><div className="score-value" style={{ color: score < 0 ? "#ef4444" : COLORS.accent }}>{score}</div></div>
+        <div style={{ textAlign: "right" }}>
+          {lastRoll && <div><div className="score-label">Last Roll</div><div className="score-value">{lastRoll}</div></div>}
+        </div>
+      </div>
+
+      <div className="card">
+        <div className="board">
+          {boardSquares.map((sq, i) => (
+            <div
+              key={i}
+              className={`board-square ${i === pos ? "active" : i < pos ? "visited" : ""} ${sq.points > 0 ? "positive" : sq.points < 0 ? "negative" : ""}`}
+            >
+              {i === pos && <span className="pawn">🧑‍💼</span>}
+              <span style={{ fontSize: "0.7rem" }}>{sq.label}</span>
+              {sq.points && <span style={{ fontSize: "0.6rem", fontWeight: "bold" }}>{sq.points > 0 ? `+${sq.points}` : sq.points}</span>}
+            </div>
+          ))}
+        </div>
+
+        {!finished ? (
+          <div style={{ textAlign: "center", marginTop: "16px" }}>
+            <button className="btn btn-primary" onClick={roll} disabled={rolling}>
+              {rolling ? "Rolling... 🎲" : "Roll Dice 🎲"}
+            </button>
+          </div>
+        ) : (
+          <div className="explanation animate-in" style={{ marginTop: "16px", textAlign: "center" }}>
+            🏆 You made it to Senior Manager with {score} career points!
+            <div style={{ marginTop: "12px" }}>
+              <button className="btn btn-primary" onClick={restart}>Play Again</button>
+            </div>
+          </div>
+        )}
+
+        {history.length > 0 && (
+          <>
+            <hr className="divider" />
+            <p style={{ color: COLORS.muted, fontSize: "0.65rem", textTransform: "uppercase", letterSpacing: "2px", marginBottom: "10px" }}>Event Log</p>
+            <div style={{ maxHeight: "120px", overflowY: "auto" }}>
+              {[...history].reverse().slice(0, 5).map((h, i) => (
+                <div key={i} style={{ fontSize: "0.72rem", padding: "4px 0", color: h.points > 0 ? COLORS.accent3 : h.points < 0 ? "#ef4444" : COLORS.muted, borderBottom: `1px solid ${COLORS.border}`, display: "flex", justifyContent: "space-between" }}>
+                  <span>{h.square}</span>
+                  {h.points !== 0 && <span>{h.points > 0 ? `+${h.points}` : h.points}</span>}
+                </div>
+              ))}
+            </div>
+          </>
+        )}
+      </div>
+    </>
+  );
+}
+
+// ─── ROOT APP ─────────────────────────────────────────────────────────────────
+const MODES = [
+  { id: "card", label: "🃏 Card Game" },
+  { id: "trivia", label: "🎤 Party Trivia" },
+  { id: "roleplay", label: "🎭 Role Play" },
+  { id: "wyr", label: "⚡ Would You Rather" },
+  { id: "board", label: "🎲 Board Game" },
+];
+
+export default function App() {
+  const [mode, setMode] = useState("card");
+
+  return (
+    <>
+      <style>{styles}</style>
+      <div className="app">
+        <div className="header">
+          <h1>Office Etiquette Arena</h1>
+          <p>The workplace survival game for Gen Z professionals</p>
+        </div>
+        <nav className="nav">
+          {MODES.map(m => (
+            <button key={m.id} className={`nav-btn ${mode === m.id ? "active" : ""}`} onClick={() => setMode(m.id)}>
+              {m.label}
+            </button>
+          ))}
+        </nav>
+        <div className="content">
+          {mode === "card" && <CardGame key="card" />}
+          {mode === "trivia" && <TriviaGame key="trivia" />}
+          {mode === "roleplay" && <RolePlayGame key="roleplay" />}
+          {mode === "wyr" && <WouldYouRather key="wyr" />}
+          {mode === "board" && <BoardGame key="board" />}
+        </div>
+      </div>
+    </>
+  );
+}

@@ -119,7 +119,7 @@ export const TypingChallenge = ({ prompt, expected, onComplete, onFail }: Typing
                     <span className="text-duo-gray font-black uppercase tracking-widest text-base">AI-Graded Response</span>
                     <Sparkles size={28} className="text-duo-blue animate-pulse" />
                 </div>
-                <p className="text-duo-dark font-black text-2xl md:text-3xl leading-snug italic">{prompt}</p>
+                <p className="text-duo-dark font-black text-lg md:text-xl lg:text-2xl leading-snug italic">{prompt}</p>
             </div>
 
             {/* Input Form */}
@@ -156,25 +156,25 @@ export const TypingChallenge = ({ prompt, expected, onComplete, onFail }: Typing
                     <motion.div
                         initial={{ opacity: 0, y: 20, scale: 0.95 }}
                         animate={{ opacity: 1, y: 0, scale: 1 }}
-                        className={`w-full p-8 rounded-3xl border-4 ${gradeConfig.bg} flex flex-col gap-5`}
+                        className={`w-full p-6 md:p-8 rounded-3xl border-4 ${gradeConfig.bg} flex flex-col gap-4`}
                     >
                         {/* Score Header */}
                         <div className="flex items-center justify-between">
                             <div className="flex items-center gap-4">
                                 <gradeConfig.icon size={40} className={gradeConfig.color} strokeWidth={3} />
                                 <div>
-                                    <p className={`font-black text-3xl uppercase tracking-tight ${gradeConfig.color}`}>{gradeConfig.label}</p>
-                                    <p className="text-duo-gray font-bold text-base">AI Evaluation Complete</p>
+                                    <p className={`font-black text-2xl uppercase tracking-tight ${gradeConfig.color}`}>{gradeConfig.label}</p>
+                                    <p className="text-duo-gray font-bold text-sm">AI Evaluation Complete</p>
                                 </div>
                             </div>
                             <div className="text-right">
-                                <p className={`text-6xl font-black ${gradeConfig.color}`}>{result.score}</p>
-                                <p className="text-duo-gray font-bold">/ 100</p>
+                                <p className={`text-4xl md:text-5xl font-black ${gradeConfig.color}`}>{result.score}</p>
+                                <p className="text-duo-gray font-bold text-sm">/ 100</p>
                             </div>
                         </div>
 
                         {/* Feedback Message */}
-                        <p className="text-duo-dark font-bold text-xl italic border-t-2 border-current/20 pt-5">{result.feedback}</p>
+                        <p className="text-duo-dark font-bold text-lg md:text-xl italic border-t-2 border-current/20 pt-4">{result.feedback}</p>
 
                         {/* Improvement Tips */}
                         {result.tips.length > 0 && (
@@ -183,16 +183,16 @@ export const TypingChallenge = ({ prompt, expected, onComplete, onFail }: Typing
                                 {result.tips.map((tip, i) => (
                                     <div key={i} className="flex items-start gap-3">
                                         <span className="text-duo-orange font-black text-lg mt-0.5">›</span>
-                                        <span className="text-duo-dark font-bold text-base">{tip}</span>
+                                        <span className="text-duo-dark font-bold text-sm md:text-base">{tip}</span>
                                     </div>
                                 ))}
                             </div>
                         )}
 
                         {/* Model Answer */}
-                        <div className="bg-white/60 rounded-2xl p-5 border-2 border-current/10">
-                            <p className="font-black text-duo-dark uppercase tracking-widest text-sm mb-2">MODEL ANSWER:</p>
-                            <p className="text-duo-dark font-bold text-lg italic">"{expected}"</p>
+                        <div className="bg-white/60 rounded-2xl p-4 md:p-5 border-2 border-current/10">
+                            <p className="font-black text-duo-dark uppercase tracking-widest text-xs mb-1">MODEL ANSWER:</p>
+                            <p className="text-duo-dark font-bold text-base md:text-lg italic">"{expected}"</p>
                         </div>
                     </motion.div>
                 )}

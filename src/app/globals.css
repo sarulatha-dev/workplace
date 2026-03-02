@@ -11,8 +11,21 @@
   --color-duo-orange-dark: #E54343;
   --color-duo-white: #FFFFFF;
   --color-duo-gray: #AFAFAF;
-  --color-duo-dark: #4B4B4B;
-  --radius-duo: 1.5rem;
+  --color-duo-dark: #2B2D42;
+  /* Professional Navy */
+  --color-duo-emerald: #06D6A0;
+  --radius-duo: 1rem;
+  --font-heading: var(--font-heading);
+  --font-display: var(--font-display);
+  --font-sans: var(--font-sans);
+}
+
+.font-heading {
+  font-family: var(--font-heading), sans-serif;
+}
+
+.font-display {
+  font-family: var(--font-display), sans-serif;
 }
 
 @layer base {
@@ -22,10 +35,28 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     min-height: 100vh;
-    font-family: ui-sans-serif, system-ui, sans-serif;
+    font-family: var(--font-sans), system-ui, sans-serif;
     background-image:
-      radial-gradient(at 0% 0%, rgba(88, 204, 2, 0.05) 0px, transparent 50%),
-      radial-gradient(at 100% 100%, rgba(28, 176, 246, 0.05) 0px, transparent 50%);
+      radial-gradient(at 0% 0%, rgba(88, 204, 2, 0.03) 0px, transparent 50%),
+      radial-gradient(at 100% 100%, rgba(28, 176, 246, 0.03) 0px, transparent 50%);
+  }
+
+  .mesh-bg {
+    background-image: radial-gradient(rgba(28, 176, 246, 0.1) 1px, transparent 1.5px);
+    background-size: 40px 40px;
+    animation: mesh-pulse 10s ease-in-out infinite alternate;
+  }
+
+  @keyframes mesh-pulse {
+    0% {
+      opacity: 0.05;
+      background-size: 30px 30px;
+    }
+
+    100% {
+      opacity: 0.12;
+      background-size: 50px 50px;
+    }
   }
 
   /* Duolingo-Style Bubbly UI */
@@ -34,20 +65,22 @@
     padding: 0.75rem 2rem;
     font-weight: 900;
     text-transform: uppercase;
-    letter-spacing: 0.05em;
+    letter-spacing: 0.08em;
     transition-property: all;
     transition-duration: 100ms;
-    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-timing-function: cubic-bezier(0.175, 0.885, 0.32, 1.275);
     border-radius: var(--radius-duo);
-    border-bottom-width: 4px;
+    border-bottom-width: 6px;
     border-style: solid;
     user-select: none;
+    box-shadow: 0 4px 0 0 rgba(0, 0, 0, 0.1);
   }
 
   .duo-button:active {
-    transform: translateY(2px);
+    transform: translateY(4px);
     border-bottom-width: 0px;
-    margin-bottom: 2px;
+    margin-bottom: 4px;
+    box-shadow: none;
   }
 
   .duo-button-green {
@@ -94,17 +127,37 @@
   .duo-card {
     padding: 2rem;
     background-color: white;
-    border: 2px solid rgba(175, 175, 175, 0.2);
+    background-image: linear-gradient(to bottom, rgba(255, 255, 255, 0.8), transparent);
+    border: 3px solid rgba(175, 175, 175, 0.15);
     transition-property: all;
-    transition-duration: 300ms;
-    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-    border-radius: var(--radius-duo);
-    box-shadow: 0 4px 0 0 rgba(0, 0, 0, 0.05);
+    transition-duration: 400ms;
+    transition-timing-function: cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    border-radius: 2rem;
+    box-shadow: 0 8px 0 0 rgba(0, 0, 0, 0.05), 0 20px 40px -10px rgba(0, 0, 0, 0.08);
   }
 
   .duo-card:hover {
-    border-color: rgba(28, 176, 246, 0.5);
-    background-color: #fafafa;
+    border-color: rgba(28, 176, 246, 0.4);
+    background-color: rgba(255, 255, 255, 0.95);
+    box-shadow: 0 12px 0 0 rgba(0, 0, 0, 0.05), 0 30px 60px -12px rgba(28, 176, 246, 0.2);
+    transform: translateY(-4px);
+  }
+
+  .duo-token {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 900;
+    border-bottom-width: 5px;
+    border-style: solid;
+    transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    box-shadow: 0 3px 0 0 rgba(0, 0, 0, 0.1);
+  }
+
+  .duo-token:active {
+    transform: translateY(2px);
+    border-bottom-width: 1px;
+    box-shadow: none;
   }
 
   .duo-progress-container {

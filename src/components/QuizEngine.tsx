@@ -53,7 +53,7 @@ export default function QuizEngine({ mode, questions }: QuizEngineProps) {
             <div className="container mx-auto px-4 py-20 flex flex-col items-center">
                 <JasaMascot pose="thinking" className="w-64 h-64 mb-10" />
                 <h1 className="text-4xl font-black mb-4 text-duo-orange uppercase text-center">NO CHALLENGES FOUND</h1>
-                <p className="text-xl mb-10 font-bold text-duo-gray uppercase text-center">Jasa Mentor: "It looks like this module doesn't have any challenges of this type yet. Try another one!"</p>
+                <p className="text-xl mb-10 font-bold text-duo-gray uppercase text-center">Jasa Mentor: &quot;It looks like this module doesn&apos;t have any challenges of this type yet. Try another one!&quot;</p>
                 <button
                     onClick={() => router.back()}
                     className="duo-button duo-button-blue text-xl w-64 uppercase"
@@ -158,7 +158,7 @@ export default function QuizEngine({ mode, questions }: QuizEngineProps) {
             <div className="container mx-auto px-4 py-20 flex flex-col items-center">
                 <JasaMascot pose="oops" className="w-64 h-64 mb-10" />
                 <h1 className="text-5xl font-black mb-4 text-duo-orange">OUT OF HEARTS!</h1>
-                <p className="text-xl mb-10 font-bold text-duo-gray uppercase text-center">Jasa Mentor: "Don't give up! Let's reboot your professional logic."</p>
+                <p className="text-xl mb-10 font-bold text-duo-gray uppercase text-center">Jasa Mentor: &quot;Don&apos;t give up! Let&apos;s reboot your professional logic.&quot;</p>
                 <button
                     onClick={() => { resetLives(); router.push('/game-select'); }}
                     className="duo-button duo-button-blue text-xl w-64 uppercase"
@@ -189,7 +189,7 @@ export default function QuizEngine({ mode, questions }: QuizEngineProps) {
     }
 
     return (
-        <div className="container mx-auto px-4 py-8 pb-32 max-w-7xl relative mx-auto flex flex-col lg:flex-row gap-12 lg:gap-20">
+        <div className="container mx-auto px-4 py-8 pb-64 max-w-7xl relative mx-auto flex flex-col lg:flex-row gap-12 lg:gap-20">
             {/* LEFT SIDEBAR: Jasa & Hints */}
             <div className="w-full lg:w-[320px] flex-shrink-0 flex flex-col gap-6 lg:sticky lg:top-8 h-fit">
                 {/* Mobile Header (Hidden on Desktop) */}
@@ -240,41 +240,53 @@ export default function QuizEngine({ mode, questions }: QuizEngineProps) {
             {/* RIGHT SIDE: Quiz Content */}
             <div className="flex-1 flex flex-col pt-2 lg:pt-0">
                 {/* Desktop Header: Quit, Progress, Hearts */}
-                <div className="hidden lg:flex justify-between items-center mb-6 w-full gap-6">
-                    <button onClick={() => router.back()} className="text-duo-gray hover:text-duo-dark font-black tracking-widest uppercase flex items-center gap-3 text-xl transition-all flex-shrink-0">
-                        <ArrowLeft size={28} strokeWidth={4} /> QUIT
+                <div className="hidden lg:flex justify-between items-center mb-8 w-full gap-8">
+                    <button onClick={() => router.back()} className="text-duo-gray hover:text-duo-blue font-black tracking-widest uppercase flex items-center gap-3 text-xl transition-all flex-shrink-0 group">
+                        <div className="w-12 h-12 bg-white rounded-2xl shadow-sm flex items-center justify-center group-hover:shadow-md transition-all">
+                            <ArrowLeft size={28} strokeWidth={4} />
+                        </div>
+                        QUIT
                     </button>
 
-                    <div className="flex-1 h-6 bg-duo-gray/10 rounded-full overflow-hidden border-4 border-duo-gray/5">
-                        <motion.div
-                            className="h-full bg-duo-green shadow-[0_4px_0_0_#46A202] rounded-full"
-                            initial={{ width: 0 }}
-                            animate={{ width: `${((currentIdx + 1) / questions.length) * 100}%` }}
-                        />
+                    <div className="flex-1 flex items-center gap-4">
+                        <div className="flex-1 h-8 bg-slate-200/50 backdrop-blur-sm rounded-full overflow-hidden border-4 border-white shadow-inner relative">
+                            <motion.div
+                                className="h-full bg-gradient-to-r from-duo-green to-emerald-400 shadow-[0_4px_0_0_#46A202] rounded-full relative overflow-hidden"
+                                initial={{ width: 0 }}
+                                animate={{ width: `${((currentIdx + 1) / questions.length) * 100}%` }}
+                            >
+                                <div className="absolute inset-0 bg-white/20 animate-pulse" />
+                            </motion.div>
+                        </div>
+                        <div className="w-12 h-12 bg-white rounded-2xl shadow-lg border-2 border-duo-yellow/20 flex items-center justify-center animate-bounce">
+                            <Star fill="#FFC800" className="text-duo-yellow" size={28} />
+                        </div>
                     </div>
 
-                    <div className="flex items-center gap-2 text-duo-orange font-black text-2xl flex-shrink-0">
-                        <Heart fill="currentColor" size={32} className="animate-pulse" /> {lives}
+                    <div className="flex items-center gap-4 bg-white/80 backdrop-blur-md px-6 py-3 rounded-3xl border-2 border-duo-orange/20 shadow-xl flex-shrink-0">
+                        <Heart fill="#FF4B4B" size={32} className="text-duo-orange animate-pulse" />
+                        <span className="text-3xl font-black text-duo-dark tabular-nums">{lives}</span>
                     </div>
                 </div>
 
-                <div className="relative min-h-[400px] flex flex-col justify-center">
+                <div className="relative min-h-[500px] flex flex-col justify-center">
                     {/* Buzzer Overlay for Multi Mode */}
                     {playMode === 'multi' && !isBuzzed && !isAnswered && (
                         <motion.div
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            className="absolute inset-0 z-30 flex flex-col items-center justify-center bg-slate-50/90 backdrop-blur-md rounded-[50px] p-12 text-center"
+                            initial={{ opacity: 0, scale: 0.9 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            className="absolute inset-0 z-30 flex flex-col items-center justify-center bg-white/95 backdrop-blur-xl rounded-[60px] p-12 text-center border-8 border-white shadow-2xl"
                         >
-                            <h3 className="text-6xl font-black text-duo-dark mb-12 italic tracking-tighter">RACE TO THE BUZZER!</h3>
+                            <h3 className="text-7xl font-black text-duo-dark mb-12 italic tracking-tighter leading-none">RACE TO THE BUZZER!</h3>
                             <motion.button
-                                whileTap={{ scale: 0.9, y: 5 }}
+                                whileHover={{ scale: 1.05 }}
+                                whileTap={{ scale: 0.9, y: 10 }}
                                 onClick={handleBuzz}
-                                className="w-72 h-72 bg-duo-orange rounded-full border-b-[16px] border-duo-orange-dark active:border-b-0 flex items-center justify-center text-white font-black text-5xl shadow-[0_20px_0_0_rgba(0,0,0,0.1)] hover:scale-105 transition-transform"
+                                className="w-80 h-80 bg-duo-orange rounded-full border-b-[20px] border-duo-orange-dark active:border-b-0 flex items-center justify-center text-white font-black text-6xl shadow-[0_30px_60px_-15px_rgba(255,75,75,0.4)] transition-all"
                             >
                                 BUZZ!
                             </motion.button>
-                            <p className="mt-12 text-3xl font-black text-duo-gray tracking-[0.2em] animate-pulse">WAIT FOR IT...</p>
+                            <p className="mt-16 text-3xl font-black text-duo-blue tracking-[0.3em] animate-pulse">GET READY...</p>
                         </motion.div>
                     )}
 
@@ -283,43 +295,61 @@ export default function QuizEngine({ mode, questions }: QuizEngineProps) {
                         <motion.div
                             initial={{ opacity: 0, scale: 0.9 }}
                             animate={{ opacity: 1, scale: 1 }}
-                            className="absolute inset-0 z-30 flex flex-col items-center justify-center bg-duo-orange/10 backdrop-blur-md rounded-[50px] p-12 text-center border-8 border-duo-orange border-dashed"
+                            className="absolute inset-0 z-30 flex flex-col items-center justify-center bg-duo-orange/10 backdrop-blur-xl rounded-[60px] p-12 text-center border-8 border-duo-orange border-dashed shadow-2xl"
                         >
-                            <Bot size={120} className="text-duo-orange mb-8 animate-bounce" />
-                            <h3 className="text-6xl font-black text-duo-orange mb-6 italic tracking-tighter">JASABOT WINS!</h3>
-                            <p className="text-2xl font-black text-duo-dark mb-12 uppercase">He claimed this logic point.</p>
+                            <Bot size={140} className="text-duo-orange mb-8 animate-bounce" />
+                            <h3 className="text-7xl font-black text-duo-orange mb-6 italic tracking-tighter leading-none uppercase">JASABOT WINS!</h3>
+                            <p className="text-3xl font-black text-duo-dark mb-12 uppercase tracking-tight">He claimed this logic point.</p>
                             <button onClick={nextQuestion} className="duo-button duo-button-orange text-3xl px-16 h-24">CONTINUE MISSION</button>
                         </motion.div>
                     )}
 
-                    <div className={playMode === 'multi' && !isBuzzed && !isAnswered ? 'blur-md grayscale opacity-50' : ''}>
-                        <h2 className={`text-3xl md:text-5xl font-black text-duo-dark mb-8 leading-tight uppercase italic tracking-tighter text-center ${currentQuestion?.type === 'typing' ? 'hidden' : ''}`}>
-                            {currentQuestion?.text}
+                    <div className={playMode === 'multi' && !isBuzzed && !isAnswered ? 'blur-xl grayscale opacity-30 scale-95 transition-all duration-500' : 'transition-all duration-500'}>
+                        <h2 className={`font-display text-xl md:text-2xl lg:text-3xl font-black text-duo-dark mb-8 leading-tight uppercase tracking-tighter text-center italic ${currentQuestion?.type === 'typing' ? 'hidden' : ''}`}>
+                            <span className="bg-clip-text text-transparent bg-gradient-to-b from-duo-dark to-slate-500">
+                                {currentQuestion?.text}
+                            </span>
                         </h2>
 
-                        <div className="space-y-4 max-w-2xl mx-auto">
+                        <div className="space-y-6 max-w-3xl mx-auto">
                             {currentQuestion.type === "mcq" && (
-                                <div className="grid grid-cols-1 gap-4">
+                                <div className="grid grid-cols-1 gap-6">
                                     {currentQuestion.options?.map((opt, i) => (
                                         <button
                                             key={i}
                                             onClick={() => handleMCQAnswer(i)}
                                             disabled={isAnswered}
-                                            className={`duo-card p-8 text-left text-2xl font-black transition-all border-b-[10px] transform active:translate-y-1 active:border-b-0 ${selectedOpt === i
+                                            className={`duo-card p-6 md:p-8 text-left transition-all relative overflow-hidden flex items-center gap-8 ${selectedOpt === i
                                                 ? i === currentQuestion.correctAnswer
-                                                    ? "bg-duo-green/10 border-duo-green text-duo-green"
-                                                    : "bg-duo-orange/10 border-duo-orange text-duo-orange"
-                                                : "bg-white hover:bg-slate-50 border-duo-gray/20 hover:border-duo-blue/30"
+                                                    ? "border-duo-green bg-duo-green/5 ring-4 ring-duo-green/20"
+                                                    : "border-duo-orange bg-duo-orange/5 ring-4 ring-duo-orange/20"
+                                                : "hover:border-duo-blue/50 hover:bg-slate-50/50 shadow-xl"
                                                 }`}
                                         >
-                                            <div className="flex items-center gap-8">
-                                                <span className={`inline-flex w-14 h-14 rounded-2xl border-4 items-center justify-center text-center text-3xl italic
-                                                ${selectedOpt === i ? 'border-current' : 'border-duo-gray/20 text-duo-gray'}
+                                            <div className={`w-16 h-16 rounded-[20px] duo-token text-3xl shrink-0
+                                                ${selectedOpt === i
+                                                    ? i === currentQuestion.correctAnswer
+                                                        ? 'bg-duo-green text-white border-duo-green-dark'
+                                                        : 'bg-duo-orange text-white border-duo-orange-dark'
+                                                    : 'bg-white text-duo-gray border-slate-200 group-hover:border-duo-blue group-hover:text-duo-blue'
+                                                }
                                             `}>
-                                                    {i + 1}
-                                                </span>
-                                                <span className="flex-1 leading-tight uppercase italic tracking-tight">{opt}</span>
+                                                {String.fromCharCode(65 + i)}
                                             </div>
+                                            <span className={`flex-1 font-sans text-2xl md:text-3xl font-black leading-tight tracking-tight transition-colors ${selectedOpt === i ? 'text-duo-dark' : 'text-slate-700'}`}>
+                                                {opt}
+                                            </span>
+
+                                            {/* Selection Indicator */}
+                                            {selectedOpt === i && (
+                                                <motion.div
+                                                    initial={{ scale: 0 }} animate={{ scale: 1 }}
+                                                    className={`w-12 h-12 rounded-full flex items-center justify-center shrink-0 ${i === currentQuestion.correctAnswer ? 'bg-duo-green' : 'bg-duo-orange'
+                                                        }`}
+                                                >
+                                                    {i === currentQuestion.correctAnswer ? <Star size={24} fill="white" className="text-white" /> : <Shield size={24} className="text-white" />}
+                                                </motion.div>
+                                            )}
                                         </button>
                                     ))}
                                 </div>
@@ -353,34 +383,38 @@ export default function QuizEngine({ mode, questions }: QuizEngineProps) {
                     <AnimatePresence>
                         {isAnswered && (
                             <motion.div
-                                initial={{ y: 100, opacity: 0 }}
+                                initial={{ y: 200, opacity: 0 }}
                                 animate={{ y: 0, opacity: 1 }}
-                                className={`fixed bottom-0 left-0 right-0 p-8 border-t-4 z-50 ${mascotPose === "cheering"
-                                    ? "bg-duo-green/10 border-duo-green text-duo-green"
-                                    : "bg-duo-orange/10 border-duo-orange text-duo-orange"
+                                className={`fixed bottom-0 left-0 right-0 p-4 md:p-6 border-t-4 z-50 backdrop-blur-lg shadow-[0_-10px_40px_rgba(0,0,0,0.1)] ${mascotPose === "cheering"
+                                    ? "bg-white/30 border-duo-green"
+                                    : "bg-white/30 border-duo-orange"
                                     }`}
                             >
-                                <div className="max-w-4xl mx-auto flex items-center justify-between">
-                                    <div className="flex items-center gap-6">
-                                        <div className={`w-16 h-16 rounded-2xl flex items-center justify-center text-white shadow-lg ${mascotPose === "cheering" ? "bg-duo-green" : "bg-duo-orange"
-                                            }`}>
-                                            <Zap size={32} fill="currentColor" />
-                                        </div>
+                                <div className="max-w-5xl mx-auto flex flex-col md:flex-row items-center justify-between gap-8">
+                                    <div className="flex items-center gap-8 text-center md:text-left">
+                                        <motion.div
+                                            initial={{ scale: 0, rotate: -30 }}
+                                            animate={{ scale: 1, rotate: 0 }}
+                                            className={`w-12 h-12 md:w-16 md:h-16 rounded-2xl flex items-center justify-center text-white shadow-xl ${mascotPose === "cheering" ? "bg-duo-green" : "bg-duo-orange"
+                                                }`}
+                                        >
+                                            {mascotPose === "cheering" ? <Trophy size={28} strokeWidth={3} /> : <Zap size={28} strokeWidth={3} />}
+                                        </motion.div>
                                         <div>
-                                            <h4 className="text-3xl font-black uppercase tracking-tighter">
-                                                {mascotPose === "cheering" ? "EXCELLENT LOGIC!" : "PROFESSIONAL OOPS!"}
+                                            <h4 className={`text-xl md:text-3xl font-black uppercase italic tracking-tighter leading-none mb-1 ${mascotPose === "cheering" ? "text-duo-green" : "text-duo-orange"}`}>
+                                                {mascotPose === "cheering" ? "LEVEL UP LOGIC!" : "IMPROVE YOUR VIBE!"}
                                             </h4>
-                                            <p className="text-lg font-bold opacity-80">
-                                                {mascotPose === "cheering" ? "+10 XP Earned" : "You lost a heart. Study Jasa's tip!"}
+                                            <p className="text-xs md:text-sm font-black text-duo-dark opacity-60 uppercase tracking-widest">
+                                                {mascotPose === "cheering" ? "PROFESSIONAL STREAK!" : "STAY FOCUSED."}
                                             </p>
                                         </div>
                                     </div>
                                     <button
                                         onClick={nextQuestion}
-                                        className={`duo-button text-xl px-12 h-16 uppercase ${mascotPose === "cheering" ? "duo-button-green" : "duo-button-orange"
+                                        className={`duo-button text-xl px-12 h-14 md:h-16 uppercase italic tracking-tighter min-w-[200px] ${mascotPose === "cheering" ? "duo-button-green" : "duo-button-orange"
                                             }`}
                                     >
-                                        CONTINUE
+                                        {currentIdx + 1 < questions.length ? "NEXT CHALLENGE" : "VIEW RESULTS"}
                                     </button>
                                 </div>
                             </motion.div>
